@@ -4,3 +4,5 @@ begin
 rescue LoadError
   puts "(no rspec, no spec task)"
 end
+
+task default: :spec

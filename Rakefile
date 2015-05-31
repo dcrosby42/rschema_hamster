@@ -6,3 +6,11 @@ rescue LoadError
 end
 
 task default: :spec
+
+
+task :console do
+  $: << "lib"
+  require "rschema_hamster"
+  require 'pry'
+  binding.pry
+end

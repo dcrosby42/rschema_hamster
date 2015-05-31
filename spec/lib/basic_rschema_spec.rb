@@ -8,8 +8,13 @@ module BasicRSchema
     role: enum(["mom","dad"])
   }}
 
-  describe "BasicRSchema usage" do
-    it "validates correct structures" do
+  describe "Basic RSchema usage" do
+    it "can use classes as schemas" do
+      RSchema.validate!(Integer, 1)
+      RSchema.validate!(String, "hi")
+    end
+
+    it "validates correct hash structures" do
       h = { name: "Dave", number: 38, role: 'dad' }
 
       RSchema.validate!(Ez, h)
@@ -28,7 +33,6 @@ module BasicRSchema
       expect(err.failing_value).to eq "monk"
       expect(err.key_path).to eq [:role]
     end
-
 
   end
 

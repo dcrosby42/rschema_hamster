@@ -1,6 +1,6 @@
 # RSchema-Hamster
 
-Extends RSchema to support Hamster's immutable Hash, Vector, List and Set structures.
+Extends [RSchema][RSCHEMA-DOC] to support [Hamster's][HAMSTER-DOC] immutable Hash, Vector, List and Set structures.
 
 ```ruby
 Email = String
@@ -56,4 +56,5 @@ Implement someday:
 * Structs
 * Hamsterdam::Struct
 
-
+[HAMSTER-DOC]: https://github.com/hamstergem/hamster 
+[RSCHEMA-DOC]: https://github.com/tomdalling/rschema

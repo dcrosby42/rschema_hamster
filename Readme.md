@@ -9,6 +9,12 @@ DONE:
 
 TODO:
 
+Project:
+* Proper readme
+* .gem
+
+Implement: 
+
 * Hasmter::Set -(GenericHashSchema via set_of)
 * Mix of Hamster schemas
 * Mix of Hamster and normal Ruby schemas
@@ -20,7 +26,7 @@ TODO:
 ** enum
 ** boolean
 
-TODO someday:
+Implement someday:
 
 * Structs
 * Hamsterdam::Struct

@@ -148,14 +148,6 @@ describe "RSchema extended for Hamster immutable types" do
     end
   end
 
-  # Mixing Vectors and Lists
-
-  # Hamster::Vectors using other RSchema schemas:
-  # - enum
-  # - boolean
-  
-  describe ""
-
   describe "Hamster Hashes with known keys" do
     let(:schema) {
       Hamster.hash(
@@ -193,12 +185,40 @@ describe "RSchema extended for Hamster immutable types" do
         reason: /not a String/
     end
   end
-
-  # Hashes using other RSchema schemas:
-  # - enum
-  # - boolean
-  # - optional keys
   
+  describe "Generic Hamster Hashes" do
+    let(:schema) { 
+      RSchema.schema {
+        hamster_hash_of(Symbol => Integer) 
+      }
+    }
+    let(:value) { Hamster.hash( one: 1, two: 2 ) }
+
+    it "accepts good values" do
+      expect_valid schema, value
+    end
+
+    it "accepts empty Hamster Hashes" do
+      expect_valid schema, Hamster.hash
+    end
+
+    it "rejects bad keys" do
+      v2 = value.put('three', 3)
+      expect_invalid schema, v2,
+        failing_value: 'three',
+        key_path: [".keys"],
+        reason: /not a Symbol/
+    end
+
+    it "rejects bad values" do
+      v2 = value.put(:three, "three")
+      expect_invalid schema, v2,
+        failing_value: 'three',
+        key_path: [:three],
+        reason: /not a Integer/
+    end
+  end
+
 
   # Hashes with variable keys
 

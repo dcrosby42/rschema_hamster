@@ -1,5 +1,6 @@
 require 'rschema'
 require 'hamster'
+require 'rschema_hamster/dsl'
 
 class Hamster::Vector
   def schema_walk(value, mapper)
@@ -75,5 +76,11 @@ class Hamster::Hash
       break error.extend_key_path(k) if error
       accum.put(k, subvalue_walked)
     end
+  end
+end
+
+module RSchema
+  module DSL
+    extend RSchemaHamster::DSL
   end
 end

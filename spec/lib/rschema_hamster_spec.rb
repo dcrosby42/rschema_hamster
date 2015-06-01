@@ -78,10 +78,83 @@ describe "RSchema extended for Hamster immutable types" do
     end
   end
 
+  describe "using Hamster List as a fixed-length schema" do
+    let(:schema) { Hamster::List[Integer,String,Symbol] }
+    let(:value) { Hamster.list(1,"2", :three) }
+
+    it "behaves like Ruby Arrays" do
+      RSchema.validate!(schema, value)
+    end
+
+    it "raises for bad match" do
+      expect_invalid schema, Hamster.list(1, 42, :hi),
+        failing_value: 42,
+        key_path: [1],
+        reason: /String/
+    end
+
+    it "raises for wrong length" do
+      expect_invalid schema, Hamster.list(1, 42, :hi, :longer),
+        reason: /does not have 3/
+    end
+
+    it "raises for wrong type" do
+      expect_invalid schema, [500, "hi", :a_sym],
+        reason: /is not a Hamster List/
+    end
+  end
+
+  describe "using Hamster List as an n-length schema" do
+    let(:schema) { Hamster.list(Symbol) }
+    let(:nums) { Hamster.list(:one, :two, :three) }
+    let(:single_length) { Hamster.list(:forty_two) }
+    let(:empty_list) { Hamster.list }
+
+    it "validates Lists of numericals" do
+      expect_valid schema, nums
+    end
+
+    it "validates single-length Lists" do
+      expect_valid schema, single_length
+    end
+
+    it "validates empty Lists" do
+      expect_valid schema, empty_list
+    end
+
+    it "validates Lists in Lists" do
+      schema = Hamster.list(
+        Hamster.list(String),
+        Hamster.list(Integer),
+        Hamster.list(Symbol))
+
+      value = Hamster.list(
+        Hamster.list("a","b","c"),
+        Hamster.list(1,2,3),
+        Hamster.list(:birds, :bees, :puppies))
+
+      expect_valid schema, value
+    end
+
+    it "rejects wrong type" do
+      expect_invalid schema, Hamster.list(:one,:two,3),
+        failing_value: 3,
+        key_path: [2],
+        reason: /not a Symbol/
+    end
+
+    it "rejects nil" do
+      expect_invalid schema, nil
+    end
+  end
+
+  # Mixing Vectors and Lists
+
   # Hamster::Vectors using other RSchema schemas:
   # - enum
   # - boolean
   
+  describe ""
 
   describe "Hamster Hashes with known keys" do
     let(:schema) {

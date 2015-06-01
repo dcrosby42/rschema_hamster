@@ -186,7 +186,7 @@ describe "RSchema extended for Hamster immutable types" do
     end
   end
   
-  describe "Generic Hamster Hashes" do
+  describe ".hamster_hash_of for generic Hamster Hashes" do
     let(:schema) { 
       RSchema.schema {
         hamster_hash_of(Symbol => Integer) 
@@ -208,6 +208,12 @@ describe "RSchema extended for Hamster immutable types" do
         failing_value: 'three',
         key_path: [".keys"],
         reason: /not a Symbol/
+
+      v3 = value.put(nil, 4)
+      expect_invalid schema, v3,
+        failing_value: nil,
+        key_path: [".keys"],
+        reason: /not a Symbol/
     end
 
     it "rejects bad values" do
@@ -219,8 +225,72 @@ describe "RSchema extended for Hamster immutable types" do
     end
   end
 
+  describe "mix-n-match Hamster Hash and Vector" do
+    Email = String
+    PostalCode = String
+    
+    Person = Hamster.hash(
+      name: String,
+      email: Email
+    )
+    Address = Hamster.hash(
+      street: String,
+      postal_code: PostalCode
+    )
 
-  # Hashes with variable keys
+    Contact = Hamster.hash(
+      person: Person,
+      addresses: Hamster.vector(Address)
+    )
+
+    Database = Hamster.vector(Contact)
+
+    let(:contact1) { 
+      Hamster.from(
+        person: { name: "Dave", email: "dcrosby42" },
+        addresses: [
+          { street: "Longacre", postal_code: "49341" },
+          { street: "Hall", postal_code: "49506" },
+        ]
+      )
+    }
+
+    AltDatabase = Hamster.from(
+      [{
+        person: { name: String, email: String },
+        addresses: [{ street: String, postal_code: String}]
+      }]
+    )
+
+    let(:contact2) { 
+      Hamster.from(
+        person: { name: "Liz", email: "liz42" },
+        addresses: [
+          { street: "Wisteria", postal_code: "49002" },
+          { street: "Hall", postal_code: "49506" },
+        ]
+      )
+    }
+    let(:database) { Hamster.vector(contact1, contact2) }
+
+    it "validates well-structured inputs" do
+      expect_valid Database, database
+    end
+
+    it "works predictably using Hamster constructor shorthand" do
+      expect_valid AltDatabase, database
+    end
+
+    it "rejects naughy values" do
+      bad_database = database.update_in(0, :addresses, 1, :postal_code) { 42 }
+      expect_invalid Database, bad_database,
+        failing_value: 42,
+        key_path: [0, :addresses, 1, :postal_code],
+        reason: /not a String/
+    end
+
+  end
+
 
   # Hashes w Vectors
   # Vectors w Hashes

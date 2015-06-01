@@ -1,11 +1,6 @@
 require 'spec_helper'
 
-module OffTheShelf
-
-  # OneTwoThree = RSchema.schema {{
-  #   one_two_three: Hamster.vector(1,2,3)
-  # }}
-
+describe "RSchema extended for Hamster immutable types" do
   describe "using Hamster classes directly as schemas" do
     it "works same way as normal Ruby classes" do
       RSchema.validate!(Hamster::Vector, Hamster.vector(5,6,7))
@@ -40,7 +35,7 @@ module OffTheShelf
   end
 
   describe "using Hamster Vectors as an n-length schema" do
-    let(:schema) { Hamster::Vector[Symbol] }
+    let(:schema) { Hamster.vector(Symbol) }
     let(:nums) { Hamster.vector(:one, :two, :three) }
     let(:single_length) { Hamster.vector(:forty_two) }
     let(:empty_vector) { Hamster.vector }
@@ -57,6 +52,20 @@ module OffTheShelf
       expect_valid schema, empty_vector
     end
 
+    it "validates Vectors in Vectors" do
+      schema = Hamster.vector(
+        Hamster.vector(String),
+        Hamster.vector(Integer),
+        Hamster.vector(Symbol))
+
+      value = Hamster.vector(
+        Hamster.vector("a","b","c"),
+        Hamster.vector(1,2,3),
+        Hamster.vector(:birds, :bees, :puppies))
+
+      expect_valid schema, value
+    end
+
     it "rejects wrong type" do
       expect_invalid schema, Hamster.vector(:one,:two,3),
         failing_value: 3,
@@ -67,8 +76,63 @@ module OffTheShelf
     it "rejects nil" do
       expect_invalid schema, nil
     end
-
   end
+
+  # Hamster::Vectors using other RSchema schemas:
+  # - enum
+  # - boolean
+  
+
+  describe "Hamster Hashes with known keys" do
+    let(:schema) {
+      Hamster.hash(
+        name: String,
+        age: Integer,
+        role: Symbol
+      )
+    }
+
+    let(:correct_value) {
+      Hamster.hash(name: "Dave", age: 38, role: :dev)
+    }
+
+    it "validates correctly structure hashes" do
+      expect_valid schema, correct_value
+    end
+
+    it "rejects missing keys" do
+      bad = correct_value.delete(:age)
+      expect_invalid schema, bad, 
+        reason: /missing required keys.*:age/
+    end
+
+    it "rejects extraneous keys" do
+      bad = correct_value.put(:pet, "indy")
+      expect_invalid schema, bad,
+        reason: /extraneous key.*:pet/
+    end
+
+    it "rejects bad values" do
+      bad = correct_value.put(:name, 85)
+      expect_invalid schema, bad,
+        failing_value: 85,
+        key_path: [:name],
+        reason: /not a String/
+    end
+  end
+
+  # Hashes using other RSchema schemas:
+  # - enum
+  # - boolean
+  # - optional keys
+  
+
+  # Hashes with variable keys
+
+  # Hashes w Vectors
+  # Vectors w Hashes
+  # Hashes w Hashes
+
 
     # it "catches violations" do
     #   h = { name: "Dave", number: 38, role: 'monk' }

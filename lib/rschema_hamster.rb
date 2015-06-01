@@ -19,3 +19,40 @@ class Hamster::Vector
     end
   end
 end
+
+class Hamster::Hash
+  def schema_walk(value, mapper)
+    return RSchema::ErrorDetails.new(value, 'is not a Hash') if not value.is_a?(Hamster::Hash)
+
+    # extract details from the schema
+    required_keys = Set.new
+    all_subschemas = {}
+    each do |(k, subschema)|
+      if k.is_a?(RSchema::OptionalHashKey)
+        all_subschemas[k.key] = subschema
+      else
+        required_keys << k
+        all_subschemas[k] = subschema
+      end
+    end
+
+    # check for extra keys that shouldn't be there
+    extraneous = value.keys.reject{ |k| all_subschemas.has_key?(k) }
+    if extraneous.size > 0
+      return RSchema::ErrorDetails.new(value, "has extraneous keys: #{extraneous.inspect}")
+    end
+
+    # check for required keys that are missing
+    missing_requireds = required_keys.reject{ |k| value.has_key?(k) }
+    if missing_requireds.size > 0
+      return RSchema::ErrorDetails.new(value, "is missing required keys: #{missing_requireds.inspect}")
+    end
+
+    # walk the subvalues
+    value.reduce(Hamster.hash) do |accum, (k, subvalue)|
+      subvalue_walked, error = RSchema.walk(all_subschemas[k], subvalue, mapper)
+      break error.extend_key_path(k) if error
+      accum.put(k, subvalue_walked)
+    end
+  end
+end

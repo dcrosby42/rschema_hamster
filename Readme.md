@@ -31,6 +31,7 @@ DONE:
 * Hamster::List 
 * DSL:
 ** hamster_hash_of
+** hamster_set_of - Hasmter::Set -(GenericHamsterSetSchema)
 
 TODO:
 
@@ -40,8 +41,6 @@ Project:
 
 Implement: 
 
-* Hasmter::Set -(GenericHashSchema via set_of)
-* Mix of Hamster schemas
 * Mix of Hamster and normal Ruby schemas
 * DSL:
 ** _?

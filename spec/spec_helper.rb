@@ -10,7 +10,9 @@ require 'rschema_hamster'
 
 module RSchemaHamsterSpecHelpers
   def expect_valid(schema, value)
-    RSchema.validate!(schema, value)
+    result = RSchema.validate!(schema, value)
+    expect(result).to eq value
+    value
   end
 
   def expect_invalid(schema, value, opts={})

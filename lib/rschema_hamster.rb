@@ -11,7 +11,7 @@ class Hamster::Vector
     elsif fixed_size && value.size != self.size
       RSchema::ErrorDetails.new(value, "does not have #{self.size} elements")
     else
-      value.each.with_index.map do |subvalue, idx|
+      value.map.with_index do |subvalue, idx|
         subschema = (fixed_size ? self[idx] : first)
         subvalue_walked, error = RSchema.walk(subschema, subvalue, mapper)
         break error.extend_key_path(idx) if error
@@ -32,12 +32,21 @@ class Hamster::Cons
     elsif fixed_size && value.size != self.size
       RSchema::ErrorDetails.new(value, "does not have #{self.size} elements")
     else
-      value.each.with_index.map do |subvalue, idx|
+      result = Hamster.list
+      failure = nil
+      value.each.with_index do |subvalue, idx|
         subschema = (fixed_size ? self[idx] : first)
         subvalue_walked, error = RSchema.walk(subschema, subvalue, mapper)
-        break error.extend_key_path(idx) if error
-        subvalue_walked
+        if error 
+          error.extend_key_path(idx)
+          failure = error
+          break
+        else
+          result = result.cons(subvalue_walked)
+        end
       end
+      return (failure or result.reverse)
+
     end
   end
 end
@@ -72,9 +81,13 @@ class Hamster::Hash
 
     # walk the subvalues
     value.reduce(Hamster.hash) do |accum, (k, subvalue)|
+      # puts "RSchema.walk(all_subschemas[k], subvalue, mapper) all_subschemas[#{k.inspect}]: #{all_subschemas[k].inspect}, subvalue: (#{subvalue.class}) #{subvalue.inspect}"
       subvalue_walked, error = RSchema.walk(all_subschemas[k], subvalue, mapper)
+      # puts "  => subvalue_walked: (#{subvalue_walked.class}) #{subvalue_walked.inspect}, error: #{error.inspect}"
       break error.extend_key_path(k) if error
-      accum.put(k, subvalue_walked)
+      a = accum.put(k, subvalue_walked)
+      # puts "  (accum: #{accum.inspect})"
+      a
     end
   end
 end

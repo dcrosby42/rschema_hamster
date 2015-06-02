@@ -13,7 +13,7 @@ describe "RSchema extended for Hamster immutable types" do
     let(:value) { Hamster.vector(1,"2", :three) }
 
     it "behaves like Ruby Arrays" do
-      RSchema.validate!(schema, value)
+      expect_valid schema, value
     end
 
     it "raises for bad match" do
@@ -87,7 +87,9 @@ describe "RSchema extended for Hamster immutable types" do
     end
 
     it "raises for bad match" do
-      expect_invalid schema, Hamster.list(1, 42, :hi),
+      value = Hamster.list(1, 42, :hi)
+
+      expect_invalid schema, value,
         failing_value: 42,
         key_path: [1],
         reason: /String/
@@ -222,6 +224,35 @@ describe "RSchema extended for Hamster immutable types" do
         failing_value: 'three',
         key_path: [:three],
         reason: /not a Integer/
+    end
+  end
+
+  describe "Hamster Set via #hamster_set_of" do
+    let(:schema) { 
+      RSchema.schema { hamster_set_of(Symbol) }
+    }
+
+    it "validates sets of expected type" do
+      expect_valid schema, Hamster.set(:one, :two, :three)
+    end
+
+    it "validates empty set" do
+      expect_valid schema, Hamster.set
+    end
+
+    it "rejects Lists and Vectors and Hashes" do
+      expect_invalid schema, Hamster.list(:one, :two, :three),
+        reason: /not a Hamster::Set/
+    end
+
+    it "rejects Ruby Set" do
+      expect_invalid schema, Set.new([:one, :two, :three]),
+        reason: /not a Hamster::Set/
+    end
+
+    it "rejects nil" do
+      expect_invalid schema, nil,
+        reason: /not a Hamster::Set/
     end
   end
 

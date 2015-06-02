@@ -32,6 +32,18 @@ describe "RSchema extended for Hamster immutable types" do
       expect_invalid schema, [500, "hi", :a_sym],
         reason: /is not a Hamster::Vector/
     end
+
+    context "using optional value" do
+      let(:schema) { RSchema.schema { Hamster::Vector[Integer,maybe(String),Symbol] } }
+
+      it "validates good matches" do
+        expect_valid schema, value
+      end
+
+      it "accepts nil where 'maybe' was specified" do
+        expect_valid schema, Hamster.vector(5, nil, :x)
+      end
+    end
   end
 
   describe "using Hamster Vectors as an n-length schema" do
@@ -186,6 +198,59 @@ describe "RSchema extended for Hamster immutable types" do
         key_path: [:name],
         reason: /not a String/
     end
+
+    context "using optional keys" do
+      let(:schema) { RSchema.schema {
+        Hamster.hash(
+          main: String,
+          _?(:alternate) => Integer
+        )
+      }}
+      let(:value1) { Hamster.hash(main: "life") }
+      let(:value2) { Hamster.hash(main: "universe", alternate: 42) }
+      let(:value3) { Hamster.hash(main: "everything", alternate: "...but") }
+      let(:value4) { Hamster.hash(main: "everything", 'alternate' => 42) }
+      let(:value5) { Hamster.hash(main: "squeeze", alternate: 37, extraneous: "value") }
+
+      it "permits the absence of optional key" do
+        expect_valid schema, value1
+      end
+
+      it "allows the optional key" do
+        expect_valid schema, value2
+      end
+
+      it "ensures proper value type for optional key" do
+        expect_invalid schema, value3
+      end
+
+      it "ensures proper key type for optional key" do
+        expect_invalid schema, value4
+      end
+
+      it "ensures no extraneous keys" do
+        expect_invalid schema, value5
+      end
+
+    end
+
+    context "using optional value" do
+      let(:schema) { RSchema.schema {
+        Hamster.hash(probably_numeric: maybe(Numeric))
+      }}
+      it "allows numerics" do
+        expect_valid schema, Hamster.hash(probably_numeric: 4)
+        expect_valid schema, Hamster.hash(probably_numeric: 4.2)
+      end
+      it "accepts nil" do
+        expect_valid schema, Hamster.hash(probably_numeric: nil)
+      end
+      it "still reqiures the key" do
+        expect_invalid schema, Hamster.hash, reason: /missing required key/
+      end
+    end
+
+
   end
   
   describe ".hamster_hash_of for generic Hamster Hashes" do
@@ -312,7 +377,7 @@ describe "RSchema extended for Hamster immutable types" do
       expect_valid AltDatabase, database
     end
 
-    it "rejects naughy values" do
+    it "rejects naughty values" do
       bad_database = database.update_in(0, :addresses, 1, :postal_code) { 42 }
       expect_invalid Database, bad_database,
         failing_value: 42,
@@ -322,6 +387,9 @@ describe "RSchema extended for Hamster immutable types" do
 
   end
 
+  describe "in tandem with enums" do
+
+  end
 
   # Hashes w Vectors
   # Vectors w Hashes

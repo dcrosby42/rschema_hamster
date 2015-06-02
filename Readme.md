@@ -30,6 +30,8 @@ DONE:
 * Hamster::Hash - known keys
 * Hamster::List 
 * DSL:
+** _?
+** maybe
 ** hamster_hash_of
 ** hamster_set_of - Hasmter::Set -(GenericHamsterSetSchema)
 
@@ -43,11 +45,8 @@ Implement:
 
 * Mix of Hamster and normal Ruby schemas
 * DSL:
-** _?
-** set_of
-** predicate
-** maybe
 ** enum
+** predicate
 ** boolean
 
 Implement someday:

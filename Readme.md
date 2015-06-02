@@ -29,25 +29,18 @@ DONE:
 * Hamster::Vector
 * Hamster::Hash - known keys
 * Hamster::List 
-* DSL:
+* Test DSL:
 ** _?
 ** maybe
 ** hamster_hash_of
 ** hamster_set_of - Hasmter::Set -(GenericHamsterSetSchema)
+** enum
 
 TODO:
 
 Project:
 * Proper readme
 * .gem
-
-Implement: 
-
-* Mix of Hamster and normal Ruby schemas
-* DSL:
-** enum
-** predicate
-** boolean
 
 Implement someday:
 

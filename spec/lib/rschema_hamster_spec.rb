@@ -372,6 +372,13 @@ describe "RSchema extended for Hamster immutable types" do
 
     Database = Hamster.vector(Contact)
 
+    AltDatabase = Hamster.from(
+      [{
+        person: { name: String, email: String },
+        addresses: [{ street: String, postal_code: String}]
+      }]
+    )
+
     let(:contact1) { 
       Hamster.from(
         person: { name: "Dave", email: "dcrosby42" },
@@ -382,12 +389,6 @@ describe "RSchema extended for Hamster immutable types" do
       )
     }
 
-    AltDatabase = Hamster.from(
-      [{
-        person: { name: String, email: String },
-        addresses: [{ street: String, postal_code: String}]
-      }]
-    )
 
     let(:contact2) { 
       Hamster.from(
@@ -398,13 +399,14 @@ describe "RSchema extended for Hamster immutable types" do
         ]
       )
     }
+
     let(:database) { Hamster.vector(contact1, contact2) }
 
     it "validates well-structured inputs" do
       expect_valid Database, database
     end
 
-    it "works predictably using Hamster constructor shorthand" do
+    it "works predictably using Hamster constructor shorthand '.from'" do
       expect_valid AltDatabase, database
     end
 
@@ -419,28 +421,58 @@ describe "RSchema extended for Hamster immutable types" do
   end
 
   describe "in tandem with enums" do
+    let(:schema) { RSchema.schema {
+      Hamster.hash(
+        role: enum([:admin, :user, :analytics])
+      )
+    }}
 
+    it "works" do
+      expect_valid schema, Hamster.hash(role: :admin)
+      expect_valid schema, Hamster.hash(role: :user)
+      expect_valid schema, Hamster.hash(role: :analytics)
+    end
+
+    it "rejects non-members" do
+      expect_invalid schema, Hamster.hash(role: :wat),
+        failing_value: :wat,
+        key_path: [:role],
+        reason: /not a valid enum member/
+    end
   end
 
-  # Hashes w Vectors
-  # Vectors w Hashes
-  # Hashes w Hashes
+  describe "mixed Ruby and Hamster structures" do
+    let(:schema) { RSchema.schema {
+      {
+        person: Hamster.hash(
+          name: String,
+          role: enum([:parent,:child])
+        ),
+        slots: hash_of(String => String),
+        countup: hamster_hash_of(Symbol => Integer),
+        rows: [ Hamster.vector(Float) ]
+      }
+    }}
 
+    let(:value) {
+      {
+        person: Hamster.hash(
+          name: "Dave",
+          role: :parent
+        ),
+        slots: { "left" => "shield", "right" => "sword" },
+        countup: Hamster.hash( foes: 1, trees: 12 ),
+        rows: [
+          Hamster.vector(1.1,2.2),
+          Hamster.vector(3.3, 4.4)
+        ]
+      }
+    }
 
-    # it "catches violations" do
-    #   h = { name: "Dave", number: 38, role: 'monk' }
-    #
-    #   ok = RSchema.validate(Ez, h)
-    #
-    #   expect(ok).to be false
-    #
-    #   err = RSchema.validation_error(Ez, h)
-    #   expect(err).to be
-    #   expect(err.reason).to eq "is not a valid enum member"
-    #   expect(err.failing_value).to eq "monk"
-    #   expect(err.key_path).to eq [:role]
-    # end
+    it "validates conforming structure" do
+      expect_valid schema, value
+    end
 
-  # end
+  end
 
 end

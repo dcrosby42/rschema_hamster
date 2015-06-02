@@ -245,15 +245,22 @@ describe "RSchema extended for Hamster immutable types" do
       end
 
       it "ensures proper value type for optional key" do
-        expect_invalid schema, value3
+        expect_invalid schema, value3,
+          failing_value: "...but",
+          key_path: [:alternate],
+          reason: /not a Integer/
       end
 
       it "ensures proper key type for optional key" do
-        expect_invalid schema, value4
+        expect_invalid schema, value4,
+          failing_value: value4,
+          reason: /extraneous keys.*"alternate"/
       end
 
       it "ensures no extraneous keys" do
-        expect_invalid schema, value5
+        expect_invalid schema, value5,
+          failing_value: value5,
+          reason: /extraneous keys.*:extraneous/
       end
 
     end

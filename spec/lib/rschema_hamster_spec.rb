@@ -85,8 +85,32 @@ describe "RSchema extended for Hamster immutable types" do
         reason: /not a Symbol/
     end
 
+    it "rejects wrong type in nested Vectors" do
+      schema = Hamster.vector(
+        Hamster.vector(String),
+        Hamster.vector(Integer),
+        Hamster.vector(Symbol))
+
+      value = Hamster.vector(
+        Hamster.vector("a","b","c"),
+        Hamster.vector(1,2,3),
+        Hamster.vector(:birds, 'bees', :puppies))
+
+      expect_invalid schema, value,
+        failing_value: 'bees',
+        key_path: [2,1],
+        reason: /not a Symbol/
+
+      value2 = value.set(1,nil)
+      expect_invalid schema, value2,
+        failing_value: nil,
+        key_path: [1],
+        reason: /not a Hamster::Vector/
+    end
+
     it "rejects nil" do
-      expect_invalid schema, nil
+      expect_invalid schema, nil,
+        reason: /not a Hamster::Vector/
     end
   end
 

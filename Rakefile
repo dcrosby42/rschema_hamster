@@ -7,6 +7,7 @@ end
 
 task default: :spec
 
+require "bundler/gem_tasks"
 
 task :console do
   $: << "lib"

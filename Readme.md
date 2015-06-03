@@ -2,6 +2,8 @@
 
 Extends [RSchema][RSCHEMA-DOC] to support [Hamster's][HAMSTER-DOC] immutable Hash, Vector, List and Set structures.
 
+[![Build Status](https://travis-ci.org/dcrosby42/rschema_hamster.svg?branch=master)](https://travis-ci.org/dcrosby42/rschema_hamster)
+
 ```ruby
 Email = String
 PostalCode = String

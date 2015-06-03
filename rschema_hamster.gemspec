@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency     'rschema', '~> 1.1'
   s.add_development_dependency 'pry', '~> 0'
   s.add_development_dependency 'rake', '~> 10'
-  s.add_development_dependency 'awesom_print', '~> 1'
+  s.add_development_dependency 'awesome_print', '~> 1'
   s.add_development_dependency 'rspec', '~> 3.2'
   s.require_paths = ['lib']
 end

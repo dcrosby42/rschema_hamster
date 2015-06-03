@@ -5,7 +5,7 @@ require 'rschema_hamster/version'
 Gem::Specification.new do |s|
   s.name        = 'rschema_hamster'
   s.summary     = "RSchema extension to support Hamster's immutable Hash, Vector, List, Set"
-  s.homepage    = 'http://www.tomdalling.com/rschema'
+  s.homepage    = 'https://github.com/dcrosby42'
   s.licenses    = ['MIT']
   s.description = <<-GEM_DESC
     RSchema extension to support Hamster's immutable Hash, Vector, List, Set.

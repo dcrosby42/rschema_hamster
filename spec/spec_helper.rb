@@ -1,12 +1,4 @@
-require 'rschema'
-require 'hamster'
-require 'pry'
-require 'bigdecimal'
-
-PROJ_ROOT = File.dirname(__FILE__) + "/.."
-$: << "#{$PROJ_ROOT}/lib"
-
-require 'rschema_hamster'
+require_relative "environment"
 
 module RSchemaHamsterSpecHelpers
   def expect_valid(schema, value)

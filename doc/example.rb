@@ -95,7 +95,10 @@ guide = Hamster.vector(
 RSchema.validate!(Appearances, guide)
 
 ford = Hamster.hash(name: "Ford Prefect", gender: :male)
+# => Hamster::Hash[:name => "Ford Prefect", :gender => :male]
 arthur = ford.put(:name, "Arthur Dent")
+# => Hamster::Hash[:name => "Arthur Dent", :gender => :male]
+# (ford remains unchanged)
 
 binding.pry
 

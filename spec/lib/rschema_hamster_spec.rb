@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe "RSchema extended for Hamster immutable types" do
+  
   describe "using Hamster classes directly as schemas" do
     it "works same way as normal Ruby classes" do
       RSchema.validate!(Hamster::Vector, Hamster.vector(5,6,7))
@@ -34,7 +35,7 @@ describe "RSchema extended for Hamster immutable types" do
     end
 
     context "using optional value" do
-      let(:schema) { RSchema.schema { Hamster::Vector[Integer,maybe(String),Symbol] } }
+      let(:schema) { RSchemaHamster.schema { Hamster::Vector[Integer,maybe(String),Symbol] } }
 
       it "validates good matches" do
         expect_valid schema, value
@@ -224,7 +225,7 @@ describe "RSchema extended for Hamster immutable types" do
     end
 
     context "using optional keys" do
-      let(:schema) { RSchema.schema {
+      let(:schema) { RSchemaHamster.schema {
         Hamster.hash(
           main: String,
           _?(:alternate) => Integer
@@ -266,7 +267,7 @@ describe "RSchema extended for Hamster immutable types" do
     end
 
     context "using optional value" do
-      let(:schema) { RSchema.schema {
+      let(:schema) { RSchemaHamster.schema {
         Hamster.hash(probably_numeric: maybe(Numeric))
       }}
       it "allows numerics" do
@@ -286,7 +287,7 @@ describe "RSchema extended for Hamster immutable types" do
   
   describe ".hamster_hash_of for generic Hamster Hashes" do
     let(:schema) { 
-      RSchema.schema {
+      RSchemaHamster.schema {
         hamster_hash_of(Symbol => Integer) 
       }
     }
@@ -325,7 +326,7 @@ describe "RSchema extended for Hamster immutable types" do
 
   describe "Hamster Set via #hamster_set_of" do
     let(:schema) { 
-      RSchema.schema { hamster_set_of(Symbol) }
+      RSchemaHamster.schema { hamster_set_of(Symbol) }
     }
 
     it "validates sets of expected type" do
@@ -421,7 +422,7 @@ describe "RSchema extended for Hamster immutable types" do
   end
 
   describe "in tandem with enums" do
-    let(:schema) { RSchema.schema {
+    let(:schema) { RSchemaHamster.schema {
       Hamster.hash(
         role: enum([:admin, :user, :analytics])
       )
@@ -442,7 +443,7 @@ describe "RSchema extended for Hamster immutable types" do
   end
 
   describe "mixed Ruby and Hamster structures" do
-    let(:schema) { RSchema.schema {
+    let(:schema) { RSchemaHamster.schema {
       {
         person: Hamster.hash(
           name: String,

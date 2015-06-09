@@ -1,15 +1,19 @@
 module RSchemaHamster
   module DSL
-    def hamster_hash_of(subschemas_hash)
-      raise InvalidSchemaError unless subschemas_hash.size == 1
-      GenericHamsterHashSchema.new(
-        subschemas_hash.keys.first, 
-        subschemas_hash.values.first)
-    end
+    module Base
+      def hamster_hash_of(subschemas_hash)
+        raise InvalidSchemaError unless subschemas_hash.size == 1
+        GenericHamsterHashSchema.new(
+          subschemas_hash.keys.first, 
+          subschemas_hash.values.first)
+      end
 
-    def hamster_set_of(subschema)
-      GenericHamsterSetSchema.new(subschema)
+      def hamster_set_of(subschema)
+        GenericHamsterSetSchema.new(subschema)
+      end
     end
+    extend Base
+    extend RSchema::DSL::Base # bring along RSchema's maybe, hash_of, set_of etc.
   end
   
   GenericHamsterHashSchema = Struct.new(:key_subschema, :value_subschema) do

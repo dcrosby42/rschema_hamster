@@ -49,12 +49,12 @@ module OrderReport::HamsterSchema
     order_totals: Totals,
   )
 
-  AccountOption = Hamster.vector(Name, Id)
-
   MarketBlock = Hamster.hash(
     market_id:        Id,
     market_name:      Name,
-    account_dropdown: Hamster.vector(AccountOption),
+    account_dropdown: RSchemaHamster.schema {
+      hamster_hash_of(Name => Id)
+    },
     order_rows:       Hamster.vector(OrderRow),
     market_totals:    Totals
   )
@@ -66,10 +66,10 @@ market_block = Hamster.from(
   { 
     market_id: 42,
     market_name: "The Restaurant at the End of the Universe",
-    account_dropdown: [
-      [ "Hotblack Desiato", 1 ], 
-      [ "Zaphod Beeblebrox", 3 ]
-    ],
+    account_dropdown: {
+      "Hotblack Desiato" => 1, 
+      "Zaphod Beeblebrox" => 3
+    },
     order_rows: [
       { order_id: 101, order_number: "MILLIWAYS-00101", order_totals: { gross: dollars("120"), tax: dollars("14.4"), fee: dollars("20"), net: dollars("85.6") } },
       { order_id: 102, order_number: "MILLIWAYS-00102", order_totals: { gross: dollars("3030"), tax: dollars("363.6"), fee: dollars("505.10"), net: dollars("2161.3") } },
